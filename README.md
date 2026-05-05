@@ -83,7 +83,61 @@ EXECUTION ORDER
 8. LIMIT
 9. OFFSET
 
+-------------------------------------------------
+Why Data? To make business driven decisions based on analysis
+- products tracking
+- services
+- money tracking
+- customer satisfaction 
 
+
+Roles - data analysis with respective to domain
+Data Engineer
+
+Data analyst
+business analyst
+Product owner
+Finance analyst
+
+Tech stack
+- SQL
+- Python 
+- PySpark
+- Databricks
+- Cloud (Azure)
+
+Tables - data will be maintained in different tables to maintain data redundancy, data integrity
+
+1. Data extraction
+2. Data cleaning - Duplicates, date formating, space formating
+3. Transformation 
+4. Analysis
+
+
+Understand metadata
+1. no of columns
+2. no of rows
+3. column data type
+4. column data type formatting
+5. data set size
+
+
+Analysis
+1. descriptive analysis
+2. predictive analysis
+
+
+final datasets are given to power bi or tableau (Creating visualizations)
+
+final columns are called as metrics (From metric we take KPI's)
+Example: banking applications 
+total application / successful applications 
+
+approval KPI - Valid customers?
+
+adhoc requests fullfilling
+
+why sql? can use sql queries to handle millions of records processed from databases or files.
 
 
 
