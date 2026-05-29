@@ -81,6 +81,10 @@ SELECT * FROM sales_orders;
 -- Verify: should return 50
 SELECT COUNT(*) AS total_rows FROM sales_orders;
 
+-- Verify: should return 5
+SELECT count(DISTINCT(category)) AS total_categories
+FROM sales_orders;
+
 -- Quick summary check
 SELECT category, COUNT(*) AS orders, SUM(total_amount) AS revenue
 FROM sales_orders

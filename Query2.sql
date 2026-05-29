@@ -169,3 +169,67 @@ GROUP BY sales_rep
 HAVING COUNT(*) >= 5
 ORDER BY avg_order_amount DESC
 LIMIT 1;
+
+-- Q20. For each month, find the category that generated the highest revenue. Show month, category, and revenue.
+SELECT month, category, revenue
+FROM (
+  SELECT MONTH(order_date) AS month,
+         category,
+         SUM(total_amount) AS revenue,
+         RANK() OVER (PARTITION BY MONTH(order_date)
+                      ORDER BY SUM(total_amount) DESC) AS rnk
+  FROM sales_orders
+  GROUP BY MONTH(order_date), category
+) ranked
+WHERE rnk = 1
+ORDER BY month;
+
+-- Q21. Retrieve the top 5 orders by total_amount in descending order.
+
+SELECT * 
+FROM sales_orders
+ORDER BY total_amount DESC
+LIMIT 5;
+
+-- Q22. Implement pagination: show the 3rd page of orders (page size = 10), ordered by order_date ascending.
+
+SELECT * 
+FROM sales_orders
+ORDER BY order_date
+LIMIT 10
+OFFSET 20;
+
+
+select * from sales_orders
+
+-- Q23. Get the 2nd and 3rd most expensive products (by unit_price) in the Electronics category.
+SELECT DISTINCT product_name, unit_price
+FROM sales_orders
+WHERE category = 'Electronics'
+ORDER BY unit price DESC
+LIMIT 2
+OFFSET 1;
+
+
+-- Q24. For each sales rep, show only their single highest-value order. Use a correlated subquery with LIMIT (without window functions).
+
+SELECT s1.*
+FROM sales_orders s1
+WHERE order_id = (
+  SELECT order_id FROM sales_orders s2
+  WHERE s2.sales_rep = s1.sales_rep
+  ORDER BY total_amount DESC
+  LIMIT 1
+)
+ORDER BY s1.sales_rep;
+
+-- Q25. Find the bottom 5 cities by total revenue, but only considering cities that have placed at least 2 orders. Show city, order count, and total revenu
+
+SELECT city,
+       COUNT(*) AS order_count,
+       SUM(total_amount) AS total_revenue
+FROM sales_orders
+GROUP BY city
+HAVING COUNT(*) >= 2
+ORDER BY total_revenue ASC
+LIMIT 5;
