@@ -97,7 +97,7 @@ FROM sales_orders
 GROUP BY sales_rep
 HAVING SUM(total_amount) > 100000;
 
--- Q13. Find states that have at least 1 cancelled order AND whose total revenue from delivered orders is more than ₹50,000. (IMP)
+-- (Q13). Find states that have at least 1 cancelled order AND whose total revenue from delivered orders is more than ₹50,000. (IMP)
 SELECT state,
 	SUM(CASE WHEN status = 'Delievered' THEN total_amount ELSE 0 END) AS delivered_revenue,
 	SUM(CASE WHEN status = 'Cancelled' THEN 1 ELSE 0 END) AS cancels
@@ -117,12 +117,12 @@ ORDER BY avg_subcat_unit DESC;
 -- Q15. List customers who have placed more than 1 order AND whose average order value is less than ₹10,000, but have at least one order worth more than ₹5,000. (IMP)
 SELECT customer_name, count(*) as cnt_orders,
 AVG(total_amount) as avg_total_amount,
-SUM(CASE WHEN total_amount > 5000 THEN 1 ELSE 0 END) AS cnt
+SUM(CASE WHEN total_amount > 5000 THEN total_amount ELSE 0 END) AS cnt
 FROM sales_orders
 GROUP BY customer_name
 HAVING COUNT(*) > 1 
   AND AVG(total_amount) < 10000
-  AND SUM(CASE WHEN total_amount > 5000 THEN 1 ELSE 0 END) >= 1;
+  AND SUM(CASE WHEN total_amount > 5000 THEN total_amount ELSE 0 END) > 5000;
 
 
 SELECT customer_name,
@@ -170,7 +170,7 @@ HAVING COUNT(*) >= 5
 ORDER BY avg_order_amount DESC
 LIMIT 1;
 
--- Q20. For each month, find the category that generated the highest revenue. Show month, category, and revenue.
+-- (Q20. For each month, find the category that generated the highest revenue. Show month, category, and revenue.
 SELECT month, category, revenue
 FROM (
   SELECT MONTH(order_date) AS month,
@@ -211,7 +211,7 @@ LIMIT 2
 OFFSET 1;
 
 
--- Q24. For each sales rep, show only their single highest-value order. Use a correlated subquery with LIMIT (without window functions).
+-- (Q24). For each sales rep, show only their single highest-value order. Use a correlated subquery with LIMIT (without window functions).
 
 SELECT s1.*
 FROM sales_orders s1
