@@ -184,6 +184,7 @@ FROM (
 WHERE rnk = 1
 ORDER BY month;
 
+-- LIMIT and OFFSET
 -- Q21. Retrieve the top 5 orders by total_amount in descending order.
 
 SELECT * 
