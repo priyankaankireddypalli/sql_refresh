@@ -150,16 +150,79 @@ ORDER BY month;
 /*Q18. Find all cities where more than 15 students have enrolled. 
 These are LearnSphere's high-adoption cities and should be targeted for offline events. */
 
-SELECT city, COUNT(*) as cnt
+SELECT * FROM course_enrollments
+SELECT city, COUNT(DISTINCT student_name) AS student_count
 FROM course_enrollments
 GROUP BY city
-HAVING COUNT(*) > 15;
+HAVING COUNT(DISTINCT student_name) > 15;
 
 /* Q19. Find all instructors whose average student rating is 4.5 or above. 
 These are the "top-rated instructors" LearnSphere features them on the homepage. */
 
-SELECT instructor, avg(rating) as avg_rating
+SELECT instructor, ROUND(avg(rating),2) as avg_rating
 FROM course_enrollments
 GROUP BY instructor
 HAVING avg(rating) >= 4.5;
+
+/* (Q20). The product team wants to identify "high dropout" 
+categories those where more than 30% of enrollments result in a "Dropped" 
+status (among non-completed enrollments). Show category and dropout percentage.*/
+
+SELECT
+    category,
+    ROUND(
+        SUM(CASE WHEN status = 'Dropped' THEN 1 ELSE 0 END) * 100.0 /
+        SUM(CASE WHEN status <> 'Completed' THEN 1 ELSE 0 END),
+        2
+    ) AS dropout_percentage
+FROM course_enrollments
+GROUP BY category
+HAVING
+    SUM(CASE WHEN status = 'Dropped' THEN 1 ELSE 0 END) * 100.0 /
+    SUM(CASE WHEN status <> 'Completed' THEN 1 ELSE 0 END) > 30;
+
+-- Section E LIMIT & OFFSET
+/* Q21. LearnSphere's "Hall of Fame" shows the top 5 most expensive courses on the platform. 
+Show course name, category, and fee for the top 5 highest-priced enrollments. */
+
+SELECT * from course_enrollments;
+
+SELECT top 5 course_name, category, fee_paid
+FROM course_enrollments
+ORDER BY fee_paid DESC
+
+
+SELECT course_name, category, fee_paid
+FROM course_enrollments
+ORDER BY fee_paid DESC
+LIMIT 5;
+
+/* LearnSphere's admin panel shows 8 enrollments per page, 
+sorted by enrollment date newest first. Write queries for Page 1, Page 2, and Page 4. 
+(Note: Write all three queries, but explain what changes between them.) */
+
+-- page 1
+SELECT TOP 8 *
+FROM course_enrollments
+ORDER BY enrollment_date DESC;
+
+SELECT *
+FROM course_enrollments
+ORDER BY enrollment_date DESC
+LIMIT 10;
+
+-- page 2
+SELECT *
+FROM course_enrollments
+ORDER BY enrollment_date DESC
+LIMIT 10
+OFFSET 10;
+
+-- page 4
+SELECT *
+FROM course_enrollments
+ORDER BY enrollment_date DESC
+LIMIT 10
+OFFSET 30;
+
 

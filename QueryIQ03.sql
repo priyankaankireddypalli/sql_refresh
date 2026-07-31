@@ -1,0 +1,1 @@
+-- Employees who earn more than their managers
