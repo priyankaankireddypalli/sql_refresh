@@ -50,4 +50,9 @@ AND o.order_id = o1.order_id
 GROUP BY o.customer_id, o.order_date
 HAVING COUNT(*) > 1
 -- METHOD 1: using window functions
+%sql
+SELECT customer_id FROM (SELECT *,
+    ROW_NUMBER() OVER(PARTITION BY customer_id, order_date ORDER BY order_id) as rw
+FROM orders) t
+WHERE rw > 1
 

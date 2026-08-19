@@ -1,4 +1,4 @@
-DROP TABLE orders
+DROP TABLE orders;
 CREATE TABLE orders (
     order_id INT PRIMARY KEY,
     customer_id INT,

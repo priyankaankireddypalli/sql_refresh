@@ -172,7 +172,7 @@ GROUP BY user_id
 HAVING MAX(amount) > 1000);
 
 -- Users that have placed atleast one order/any order
-/* IN operator - Lets say we habe 10M records, and user_id 1 has placed 100 orders. 
+/* IN operator - Lets say we have 10M records, and user_id 1 has placed 100 orders. 
 When we use IN to check the users in ordes table - there are 100 records,
 so it will map 100 times, which is not efficient.
 In case, i use Distinct also, duplicates are identified and uniques are retrieved. 

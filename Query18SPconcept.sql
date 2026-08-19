@@ -67,6 +67,8 @@ VALUES
 SELECT * FROM classes;
 SELECT * FROM user_subscription_details;
 SELECT * FROM users;
+
+
 -- Q1.how many classes are conducted by each teacher
 
 SELECT u.id, COUNT(c.id) as cnt
@@ -74,6 +76,13 @@ FROM users u
 LEFT JOIN classes c
 ON u.id = c.teacher_id
 WHERE u.role_name = 'Teacher'
+GROUP BY u.id
+
+
+SELECT u.id, COUNT(c.id) as cnt
+FROM users u 
+INNER JOIN classes c
+ON u.id = c.teacher_id
 GROUP BY u.id
 
 
@@ -112,6 +121,18 @@ LEFT JOIN classes c
 ON u.id = c.teacher_id
 WHERE u.role_name = 'Teacher' and u.status = 'Active'
 GROUP BY u.id
+
+
+SELECT u.id, 
+    count(c.teacher_id) as total_cnt,
+    SUM(CASE WHEN c.class_status = 'Completed' THEN 1 ELSE 0 END) AS completed,
+    SUM(CASE WHEN c.class_status != 'Completed' THEN 1 ELSE 0 END) AS not_completed
+FROM users u
+INNER JOIN classes c
+ON u.id = c.teacher_id
+WHERE u.status = 'Active'
+GROUP BY u.id
+
 
 -- Q3. How many classess completed, how many classes not completed? only if teacher is active retreive data and how many students was handled
 
@@ -188,6 +209,8 @@ LEFT JOIN user_subscription_details us
 WHERE u.role_name = 'Teacher'
   AND u.status = 'Active'
 GROUP BY u.id, u.full_name
+
+
 -- CREATE A STORED PROCEDURE FOR THE ABOVE following for parameterized dates
 
 

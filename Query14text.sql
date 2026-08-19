@@ -38,13 +38,20 @@ VALUES
 SELECT * FROM customers
 -- Q1. Capitalize the first letter of each customer name
 
-SELECT *, LEFT(customer_name,1) AS first_letter
+SELECT customer_id,
+    UPPER( LEFT(customer_name,1))+
+    LOWER(SUBSTRING(customer_name,2,LEN(customer_name))) as customer_name
 FROM cust
 
 -- Q2. Extract domain from email
 
 SELECT *, SUBSTRING_INDEX('@',email,-1) as domain
 FROM cust
+
+SELECT customer_id,
+SPLIT(email,'@')[1] as domain
+FROM cust
+
 
 -- Q3. Extract first name
 SELECT
@@ -62,6 +69,8 @@ FROM customers;
 UPDATE customers
 SET email = REPLACE(email, 'gmail.com', 'company.com')
 WHERE email LIKE '%gmail.com';
+
+
 -- Q6. Mask phone numbers (Show only 4 digits)
 SELECT
     phone,
@@ -70,6 +79,8 @@ FROM cust
 
 SELECT CONCAT('XXXXXXXXXX',SELECT RIGHT(phone,4)))
 FROM cust
+
+
 -- q7. Count customers per email domain
 SELECT
     SUBSTRING(email,

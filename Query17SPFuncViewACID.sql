@@ -338,3 +338,22 @@ BEGIN
     RETURN @v_finalAmount;
 END;
 GO
+
+
+-- DELETE
+-- ROLLBACK
+
+INSERT INTO students VALUES (1,'Alice',20);
+INSERT INTO students VALUES (2,'Bob',22);
+INSERT INTO students VALUES (3,'Charlie',21);
+
+COMMIT;
+
+SELECT * FROM students
+
+DELETE FROM students
+
+SELECT * FROM students
+
+ROLLBACK;
+SELECT * FROM students

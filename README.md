@@ -107,7 +107,8 @@ Tech stack
 - Cloud (Azure)
 
 Tables - data will be maintained in different tables to maintain data redundancy, data integrity
-
+data redundancy - unneccessary repeated data
+data integrity - correct, accurate, consistent, reliable
 1. Data extraction
 2. Data cleaning - Duplicates, date formating, space formating
 3. Transformation 
@@ -150,8 +151,9 @@ SELECT e.emp_id, e.emp_name, m.emp_id as manager_id, m.emp_name as manager_name
 FROM emp e
 LEFT JOIN emp m
 ON e.manager_id = m.emp_id
-2. show managers and the employees reporting to them
 
+
+2. show managers and the employees reporting to them
 SELECT m.emp_name as manager, e.emp_name as employee
 FROM emp m
 JOIN emp e
@@ -164,6 +166,13 @@ FROM dept d
 LEFT JOIN emp e
 ON d.dept_id = e.dept_id
 GROUP BY d.dept_id, d.dept_name
+ORDER BY total_salary DESC
+LIMIT 1
+
+- available in one table
+SELECT department, SUM(salary) as total_salary
+FROM emp
+GROUP BY department
 ORDER BY total_salary DESC
 LIMIT 1
 
@@ -242,11 +251,11 @@ Types of subquery
 /* Why use window functions?
 
 emp_id	emp_name	dept_id	salary
-1		sai		IT		10k
-2		hari	IT		10k
-3		giri	HR		30k
-4		babu	HR		40k
-5		vandan	Finance	60k
+1		sai			IT		10k
+2		hari		IT		10k
+3		giri		HR		30k
+4		babu		HR		40k
+5		vandan		Finance	60k
 
 -- Find department wise average
 
@@ -267,11 +276,11 @@ I need my original data as it is and find the aggregate or calculations -
 Without losing the original data, i can compute required calculations.
 
 emp_id	emp_name	dept_id	salary	avg_sal
-1		sai		IT		10k			10k
-2		hari	IT		10k			10k
-3		giri	HR		30k			35k
-4		babu	HR		40k			35k
-5		vandan	Finance	60k			60k
+1		sai			IT		10k			10k
+2		hari		IT		10k			10k
+3		giri		HR		30k			35k
+4		babu		HR		40k			35k
+5		vandan		Finance	60k			60k
 
 
 APPLICATIONS: I have a table with day to day sales and i would like to compute cummulative sales as well.
@@ -331,11 +340,11 @@ Inorder to solve these problems, we can use subqueries.
 a. additional memory, allocating to memory takes more time or time consuming, High execution time
 -- Sub Query
 SELECT MAX(salary) FROM emp
-WHERE salary < (SELECT MAX(salary FROM emp)
+WHERE salary < (SELECT MAX(salary FROM emp))
 
 Lets consider if we 10M records in the table, 
 For second highest salary - we are computing two times table scan (10M * 2) = 20M
-For 10th highest salary - we are computing ten times table scan (10M  * 20M) = 100M
+For 10th highest salary - we are computing ten times table scan (10M  * 10M) = 100M
 Processing time is more
 Resources not utilised properly i.e., 
 computation power is high
@@ -420,14 +429,14 @@ USE CASES:
 3. WOW - week over week
 
 sales	   lag	   lead
-50k		NULL  50k
-50k		50k	60k
-60k		50k	70k
-70k		60k	10k
-10k		70k	20k
-20k		10k	5k
-5k		   20k	100k
-100k	   5k	   NULL
+50k		NULL  		50k
+50k		50k			60k
+60k		50k			70k
+70k		60k			10k
+10k		70k			20k
+20k		10k			5k
+5k		20k			100k
+100k	5k	   		NULL
 
 
 1. ROWS BETWEEN
@@ -508,6 +517,10 @@ sales_date	sales_id	txn  val
 Example: 
 UNDERSTAND BETWEEN ROWS BETWEEN VS RANGE BETWEEN 
 Difference and how it works?
+With ROWS, SQL processes individual rows:
+RANGE works based on the value of the ORDER BY column.
+ROWS = row position
+RANGE = value range
 
 Ntile: Used to group the entire data into specified no of groups
 Uses round robbin fashion to allocate values to group
@@ -677,6 +690,8 @@ SELECT STRCMP('Priya','Priya')
 	DIFFERENCE BETWEEN subqueries and cte. 
 	ex: 10th highest salary, we need to write it 10 times. 
 	Which makes the code messier and understanding is also difficult.
+
+	CTE
 	Easy to debug. 
 	It is used when we have a complex problem, we breakdown and write multiple cte's. Which makes code easir to understand and debug.
 	supports reccursion concept.
@@ -724,7 +739,7 @@ SELECT * FROM viewname;
 
 
 In materialised view: In that particular time what data was present, only that data is retrieved.
-NExt day, when you execute this view, it will show the data created on the day of view nut not the updated data.
+NExt day, when you execute this view, it will show the data created on the day of view but not the updated data.
 To show the updated data, use referesh the materialised view.
 
 
@@ -823,7 +838,7 @@ ATOMICITY
 10. Restore OLD VALUES(Priya = 2000, Lohith = 1000)
 
 
-CONSISTENCY - Data must remain before or after the transaction.
+CONSISTENCY - overall Data value must remain same before or after the transaction.
 
 CONSISTENCY
 
@@ -966,7 +981,7 @@ Storing entire data in one table will cause problems like
 Why normalisation?
 To prevent all above errors we create normalisations
 Breaking down complex table into smaller logical tables. 
-Data redudancy and data integrity
+reduce Data redudancy and improve data integrity
 Creating students in a student table
 Creating courses in a course table.
 
@@ -1006,7 +1021,8 @@ So we further divide the table into
 2. students table - studentId, studentName, Phone
 3. enrollmemt tables - StudentId, CourseId
 
-BCNF - Boyce Codd Normal Form (BCNF) - advanced version of 3NF or 3.5NF
+BCNF - Boyce Codd Normal Form (BCNF) -every determinant is a cnadidate key
+advanced version of 3NF or 3.5NF
 1. Table should be in 3NF
 2. Ex: student_name depends on roll_no (roll_no should be supper key), branch_name is depenedning on branch_id (branch_id
 is not super key, we have duplicates) split the data into two tables and reduce redundancy
@@ -1096,8 +1112,7 @@ WHERE customer_id = 110;
 	CREATE CLUSTERED INDEX ci_inc
 	ON customers(customer_id)
 
-	TABLE CREATION: we declare PRIMARY KEY, then that particular column will become clustered index will be created
-	on that particular column by default.
+	TABLE CREATION: we declare PRIMARY KEY, then that particular column will become clustered index will be created on that particular column by default.
 
 	Lets say you wanna create a clustered index on another column, then it throws error:
 	we cannot create a clustered key.

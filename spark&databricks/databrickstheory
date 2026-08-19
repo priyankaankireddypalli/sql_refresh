@@ -1,0 +1,164 @@
+Q. Key Vault - 
+How to access it from databricks?
+In databricks we create secrets scope
+
+Steps
+1. azure portal > key vault> create > key vault name, vault access policy, review and create
+2. go to resource, access control (IAM) - assign yourself as key vault admin > add role assignment > key vault admin, select users
+3. create secrets > secret name- app-secret, value="   "
+
+4. to create a databricks secret scope 
+databricks workspace service > copy url > add #secrets/createScope to url
+can create scope
+1. name it - priyascope, DNS name (vault uri) and resource id of key vault (present in properties)
+
+Databricks workspace functions
+dbutils.secrets.list(scope='priyascope')
+dbutils.secrets.get(scope='priyascope',key='app-secret')
+
+
+Q. Reading data from ADLS
+df_sales = spark.read.format('csv')\
+            .option('header',True)\
+            .option('inferSchema',True)\
+            .load('path')
+
+inferSchema() - Whenever we read data from spark we dont want to define the schema everytime.
+Sparks reads some records from our data and decides the best schema - column and its data types.
+
+
+Q. File format -
+a. Parquet File Format - columnar based file format which is efficient for faster reads and efficient for big data.
+b. avro
+
+
+Q. Delta Lake  - Parquet + transaction logs
+Benefits:
+
+1. Metadata is read from one place(transactional logs) instead of reading individual metadata from parquet files
+
+
+Q. Managed vs External delta tables
+
+Metastore? hive or unity metastore - repository store all definition of tables, schema, or catalog schema / metadata informatiion.
+default: managed table is created in databricks
+Metastore - catalog, schema, table definition is stored but data is stored in cloud storage (default data lake given to databricks)
+
+
+If we want to drop the table - the databricks will delete the data and metadata both.
+
+External delta tables - 
+metastore - stores metadata
+cloud storage (own), we have default storage also
+When table is dropped - metadata is removed, but data is not dropped from my storage account 
+
+
+Q. functionalities of delta lake
+1. DML operations - Insert,
+
+TombStoning - blacklisted/ghost the partitions not using, read the partition that is added.
+It does not deletes the data physically
+
+Q. Data versioning
+Keep track of all the changes happened in the table
+DESCRIBE HISTORY tablename;
+
+Q.Time travel
+Why history? you can time travel to a specific version or timestamp
+SELECT * FROM tablename VERSION AS OF 2;
+
+RESTORE tablename TO VERSION AS OF 2;
+
+Q. VACUUM command - delete the files that are no longer needed (retention duration check is 7 days - not to use in productions)
+
+VACUUM tablename
+We lose time travel, we cannot go back to that version.
+VACUUM tablename RETAIN 0 HOURS
+
+
+Q. Optimize -  it is always better to read lesser partitions even if they are bigger in size
+
+optimise delta tables -> combine small partitions into bigger partitions tpo improve read performance.
+
+
+When we ran ZORDER BY - sorted the data based on particular column(usually the column used in where (filtering), kind of indexing that we use in SQL)
+advantage of it is - data skipping (SELECT * FROM tablename WHERE id = 3)
+
+
+OPTIMIZE tablename
+ZORDER BY (columnname)
+
+
+Q. Auto Loader - incremental loading 
+architecture provided by databricks
+We used Streaming dataframe - 
+
+continuous stream of data - AutoLoader (incrementally load into destination)
+cloudfiles - generic file format
+schema - we store the schema with is referred by cloudfiles writer method
+checkpoint location - to keep track of files successfully processed or read
+
+df = spark.readStream.format('cloudFiles')\
+        .option('cloudFiles.format','parquet')\
+        .option('cloudFiles.schemaLocation','path- can store it in source or destination')
+        .load('location_of_path')
+
+df.writeStream.format('delta')\
+    .option('checkpointlocation','path')\
+    .trigger(availableNow=True) #0.5 ms by default
+    or 
+    .trigger(processingtime='5 seconds')\
+    .start('load it destination path')
+
+
+Q. Workflows - orchestrate the notebooks in databricks
+create job > job id, schedules and triggers, job parameters, job notifications, permissions, retries, dependent libraries.
+
+Q. Unity Catalog
+You need to find the manage account in your databricks account.
+Sometimes you dont see it, because this manage acoount option is visible to only administrators.
+
+Azure uses #ext account
+microsoft entra id > users > copy user email
+Databricks admin console - Go to: http://accounts.azuredatabricks.net/
+paste user principle name, go to user management and add the user email id
+make that user account admin
+
+enabling unity catalog
+Create metastore and assign the db workspace to that metastore.
+Adv?  We can share that particuar catalog with other databricks workspaces also, if we allow
+
+I want to create my own metastore
+Create metastore > name, region
+NOTE: ONE METASTORE PER REGION
+
+Create a adls gen2 container for the metastore and provide access
+IAM - add role >blob data contributor > managed_identity > select access connector for databricks
+
+paste storage account container url, Paste connector id, assign workspace, assign admin to normal gmail, since we access it metadata from there.
+
+Create a catalog> multiple schemas > multiple tables or view or volumes or functions
+
+Create a catalog - catalog name (uses the same location as metastore)
+configure catalog > access : privileges choose which users or group. by deafult everyone has browse permisions
+grant - permissions
+
+
+External data - storing or reading from external data lakes - external data locations.
+
+external data locations for bronze, silver and gold.
+
+click external connections > create credentials first (paste resource id of access connector(connected to adls gen2 IAM))
+
+
+
+
+
+
+
+
+
+
+
+
+

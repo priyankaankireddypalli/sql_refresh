@@ -423,7 +423,15 @@ Debug runs - debug sessions or manual trigger
 if triggered by execute pipeline - it will show pipeline run id.
 
 
+ALL codes stored for ADF will be JSON code files.
 
+To deploy to higher environments - 
+we use Release and build pipelines
+You will be able to setup these pipelines using YAML scripts (devops team)
+create a pull request to move to higher environments.
+
+To resolve conflicts - 
+We use github and visual studio code to resolve conflicts.
 
 
 

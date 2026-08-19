@@ -209,6 +209,12 @@ FROM acquisition a
 LEFT JOIN transactions t
 ON a.account_number = t.account_number
 
+SELECT DISTINCT(a.account_number)
+FROM acquisition a 
+WHERE EXISTS ( SELECT 1
+FROM transactions t
+WHERE t.account_number = a.account_number)
+
 SELECT SUM(t.transaction_amount) as total_sales
 FROM acquisition a
 LEFT JOIN transactions t
@@ -265,6 +271,12 @@ Some transactions might not be recorded in the sales system due to delays or fai
 Identify transactions that exist in transactions table but are missing in sales.
 KPI: data reconcillation gaps */
 
+SELECT *
+FROM transactions t
+WHERE NOT EXISTS (
+    SELECT 1 FROM sales s
+    WHERE t.transaction_id = s.transaction_id
+)
 
 SELECT *
 FROM transactions t
@@ -275,6 +287,7 @@ WHERE s.transaction_id IS NULL;
 SELECT * 
 FROM transactions t
 WHERE transaction_id NOT IN (SELECT DISTINCT(transaction_id) FROM sales)
+
 /* 6. customer spend journey
 The business wants to track customer journey from application - transactions - sales
 Join all 3 tables and show

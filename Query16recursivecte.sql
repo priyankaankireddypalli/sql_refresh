@@ -77,4 +77,32 @@ CREATE TABLE date_range(
 
 -- Q1. Generate all dates between start_date and end_date
 
+WITH date_cte AS
+(
+    SELECT
+        start_date,
+        end_date,
+        start_date AS generated_date
+    FROM date_range
+
+    UNION ALL
+
+    SELECT
+        start_date,
+        end_date,
+        DATEADD(DAY, 1, generated_date)
+    FROM date_cte
+    WHERE generated_date < end_date
+)
+SELECT generated_date
+FROM date_cte
+OPTION (MAXRECURSION 0);
+
+
+
 -- Q2. Count number of days between start_date and end_date
+SELECT
+    start_date,
+    end_date,
+    DATEDIFF(DAY, start_date, end_date) AS number_of_days
+FROM date_range;

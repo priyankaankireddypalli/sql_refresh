@@ -2,8 +2,8 @@
 	COMMON TABLE EXPRESSION (CTE) - Temporary table
 */
 
-use master
-DROP TABLE orders
+use master;
+DROP TABLE orders;
 CREATE TABLE orders(
 	customer_id INT,
 	order_date DATE,
@@ -125,20 +125,27 @@ INSERT INTO order_items (order_id, product_id) VALUES
 (15, 110);
 
 SELECT * FROM order_items
---(Q2) find top 2 most frequently co-purchased product pairs. (TRICKY)
 
-WITH cte1 AS(
-SELECT o1.product_id as p1, o2.product_id as p2, count(*) as freq_cnt
+
+
+--(Q2) find top 2 most frequently co-purchased product pairs. (TRICKY)
+WITH cte1 AS (
+SELECT
+    o1.product_id AS product_1,
+    o2.product_id AS product_2,
+    COUNT(*) as cnt
 FROM order_items o1
 JOIN order_items o2
-ON o1.product_id = o2.product_id
+    ON o1.order_id = o2.order_id
 WHERE o1.product_id < o2.product_id
 GROUP BY o1.product_id, o2.product_id),
--- using window functions
 rank as
 (SELECT *,
-ROW_NUMBER() OVER (ORDER BY freq_cnt DESC) as rw_no
+ROW_NUMBER() OVER (ORDER BY cnt DESC) as rw_no
 FROM cte1) 
+SELECT *
+FROM rank
+WHERE rw_no < 3;
 
 -- or using limit 
 SELECT *
@@ -210,23 +217,6 @@ GROUP BY
     a.order_time
 HAVING COUNT(*) > 3;
 
-
--- my approach(not that correct)
-WITH cte1 AS (
-SELECT
-	user_id,
-	order_time,
-	LEAD(order_time) OVER(PARTITION BY user_id ORDER BY order_time) as next_order_time,
-	COUNT(*) OVER (PARTITION BY user_id) as cnt
-FROM orders_fraud), 
-cte2 as
-(SELECT *, DATEDIFF(MINUTE, order_time, next_order_time) as difference
-FROM cte1)
-
-SELECT user_id, SUM(difference) FROM cte2
-WHERE cnt > 3
-GROUP BY user_id
-HAVING SUM(difference) <= 10;
 
 -- CASE STUDY: Delivery SLA Breach
 CREATE TABLE deliveries(
@@ -399,6 +389,8 @@ INSERT INTO products_cte (product_id, category) VALUES
 select * from orders_cte;
 SELECT * FROM order_items_cte
 SELECT * FROM products_cte;
+
+
 -- Top selling category per month(for each month, find the category with highest revenue)
 
 
@@ -462,14 +454,27 @@ HAVING COUNT(*) >= 3;
 
 /* For every order, label it as:
 New- Customer's firste ever order,
-Repear - any order after the first*/
+Repeat - any order after the first*/
 
 
-
-	start_date DATE,
-	end_date DATE
-	);
-
--- Q1. Generate all dates between start_date and end_date
-
--- Q2. Count number of days between start_date and end_date
+WITH customer_orders AS
+(
+    SELECT
+        customer_id,
+        order_date,
+        ROW_NUMBER() OVER
+        (
+            PARTITION BY customer_id
+            ORDER BY order_date
+        ) AS rn
+    FROM orders
+)
+SELECT
+    customer_id,
+    order_date,
+    CASE
+        WHEN rn = 1 THEN 'New'
+        ELSE 'Repeat'
+    END AS customer_type
+FROM customer_orders
+ORDER BY customer_id, order_date;

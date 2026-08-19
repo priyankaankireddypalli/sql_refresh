@@ -23,8 +23,7 @@ VALUES
 (114, 'Nancy', 95000),
 (115, 'Olivia', 72000);
 
--- Q1. FInd the median salary of employees
-
+-- Q1. FInd the median salary of employees (tricky)
 -- Step 1: order by ascending
 WITH cte1 AS (
 SELECT *,

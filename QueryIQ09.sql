@@ -49,7 +49,7 @@ VALUES
 
 SELECT * FROM transactions
 
-SELECT customer_id, YEAR(transaction_date) as yr, COUNT(*) AS cnt
+SELECT distinct customer_id, YEAR(transaction_date) as yr, COUNT(*) AS cnt
 FROM transactions
 GROUP BY customer_id, YEAR(transaction_date)
 HAVING COUNT(*) = 12

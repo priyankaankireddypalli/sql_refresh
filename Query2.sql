@@ -103,7 +103,7 @@ SELECT state,
 	SUM(CASE WHEN status = 'Cancelled' THEN 1 ELSE 0 END) AS cancels
 FROM sales_orders
 GROUP BY state
-HAVING SUM(CASE WHEN status = 'Delievered' THEN total_amount ELSE 0 END) >=1 AND SUM(CASE WHEN status = 'Cancelled' THEN 1 ELSE 0 END) > 50000;
+HAVING SUM(CASE WHEN status = 'Delievered' THEN total_amount ELSE 0 END) > 50000 AND SUM(CASE WHEN status = 'Cancelled' THEN 1 ELSE 0 END) >= 1 ;
 
 
 -- Q14. Find sub-categories where the average unit price is above the overall average unit price across all orders.

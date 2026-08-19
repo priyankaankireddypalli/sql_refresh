@@ -101,6 +101,23 @@ SELECT DATEPART(DAYOFYEAR, '2026-07-27')
 |       3 | 2024-01-07 |
 */
 
+-- Create table
+CREATE TABLE logins (
+    user_id INT,
+    login_date DATE
+);
+
+-- Insert sample data
+INSERT INTO logins (user_id, login_date) VALUES
+(1, '2024-01-01'),
+(1, '2024-01-02'),
+(1, '2024-01-03'),
+(2, '2024-01-01'),
+(2, '2024-01-03'),
+(2, '2024-01-04'),
+(3, '2024-01-05'),
+(3, '2024-01-06'),
+(3, '2024-01-07');
 
 WITH cte AS
 (
@@ -189,6 +206,10 @@ SELECT *
 FROM orders_dte
 WHERE DATEPART(MONTH, order_date) = 1 and DATEPART(YEAR, order_date) = 2024
 
+SELECT *
+FROM orders_dte
+WHERE extract(MONTH FROM order_date) = 1 AND extract(YEAR FROM order_date) = 2024;
+
 -- Q2. Find orders placed in the current month
 
 SELECT *
@@ -197,6 +218,10 @@ WHERE DATEPART(MONTH, order_date) = DATEPART(MONTH,GETDATE())
 
 -- Q3. Extract year, month, and day from order_date
 SELECT DATEPART(YEAR, order_date) as yr, DATEPART(MONTH, order_date) as mnt, DATEPART(DAY, order_date) as dte
+FROM orders_dte
+
+
+SELECT EXTRACT(YEAR FROM order_date) as year, DATEPART('MONTH',order_date) as month, DAY(order_date) as day
 FROM orders_dte
 
 -- Q4. Find orders placed on a Sunday
@@ -208,11 +233,19 @@ SELECT *
 FROM orders_dte
 WHERE DATEPART(WEEKDAY, order_date) = 1
 
+SELECT *
+FROM orders_dte
+WHERE DAYNAME(order_date) = 'Sun';
+
 -- Q5. Get orders where delivery happened in February
 
 SELECT *, DATENAME(MONTH, order_date)
 FROM orders_dte
 WHERE DATENAME(MONTH, order_date) = 'February';
+
+SELECT *
+FROM orders_dte
+WHERE MONTHNAME(delivery_date) = 'Feb'
 
 -- MEDIUM LEVEL
 -- Q6. Find orders placed in the last 30 days from today
@@ -230,6 +263,10 @@ SELECT *, DATEDIFF(DAY, order_date, delivery_date) as delivery_time
 FROM orders_dte
 WHERE DATEDIFF(DAY, order_date, delivery_date) > 4
 
+
+SELECT * FROM (SELECT *, DATEDIFF(DAY, order_date, delivery_date) as delivery_time
+FROM orders_dte) t
+WHERE delivery_time > 4;
 
 -- Q9. Get monthly total sales
 SELECT  DATEPART(MONTH, order_date) as monthly, SUM(order_amount) as sales
@@ -254,6 +291,9 @@ SELECT *
 FROM orders_dte
 WHERE DATEPART(QUARTER, order_date) = 1;
 
+SELECT *
+FROM orders_dte
+WHERE QUARTER(order_date) = 1
 
 -- (Q12). Get orders placed in the last 7 days of each month
 SELECT * FROM orders_dte
@@ -293,10 +333,6 @@ GROUP BY city
 -- HARD LEVEL
 
 -- Q17. Find customers who placed orders in consecutive months
-SELECT * FROM (SELECT customer_id,order_date,
-	ROW_NUMBER() OVER(PARTITION BY customer_id ORDER BY order_date) as rn
-FROM orders_dte) t
-
 
 SELECT * FROM (SELECT *, DATEPART(MONTH,order_date) as mnth, LAG(order_date) OVER (PARTITION BY customer_id ORDER BY order_amount) as prev_mnth
 FROM orders_dte) t

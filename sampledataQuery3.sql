@@ -6,20 +6,20 @@ USE tempdb;
 DROP TABLE IF EXISTS course_enrollments;
 
 CREATE TABLE course_enrollments (
-  enrollment_id    INT           PRIMARY KEY,
-  student_name     VARCHAR(100),
-  course_name      VARCHAR(150),
-  instructor       VARCHAR(100),
-  category         VARCHAR(60),
-  level            VARCHAR(30),
-  enrollment_date  DATE,
-  completion_date  DATE,
-  duration_hours   INT,
-  fee_paid         DECIMAL(10,2),
-  rating           DECIMAL(3,1),
-  city             VARCHAR(60),
-  device           VARCHAR(20),
-  status           VARCHAR(20)
+  enrollment_id INT PRIMARY KEY, -- Unique ID per enrollment
+  student_name VARCHAR(100), -- Student's full name
+  course_name VARCHAR(150), -- Name of the course
+  instructor VARCHAR(100), -- Instructor name
+  category VARCHAR(60), -- Data Science, Web Dev, Finance, Marketing, Design
+  level VARCHAR(30), -- Beginner, Intermediate, Advanced
+  enrollment_date DATE, -- When student enrolled
+  completion_date DATE, -- NULL if not completed yet
+  duration_hours INT, -- Total course hours (5-80)
+  fee_paid DECIMAL(10,2), -- Fee in ₹
+  rating DECIMAL(3,1), -- Student rating 1.0-5.0, NULL if not rated
+  city VARCHAR(60), -- Student's city
+  device VARCHAR(20), -- Mobile, Desktop, Tablet
+  status VARCHAR(20) -- Completed, In Progress, Dropped
 );
 
 INSERT INTO course_enrollments VALUES

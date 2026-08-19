@@ -1,4 +1,4 @@
-DROP TABLE employees
+DROP TABLE employees;
 
 CREATE TABLE employees (
     emp_id INT PRIMARY KEY,

@@ -105,6 +105,10 @@ SELECT
 	ROW_NUMBER() OVER(PARTITION BY category ORDER BY sale_date, revenue) as rw
 FROM ecom_sales
 
+SELECT *,
+    MAX(revenue) OVER(PARTITION BY category ORDER BY sale_date) as mx
+FROM ecom_sales 
+
 /* Q6. Within each region, compute each transactions revenue deviation from that region's average revenue.*/
 
 SELECT
@@ -119,6 +123,12 @@ SELECT
 	sale_date,
 	MAX(revenue) OVER(ORDER BY category) as max_revenue,
 	MIN(revenue) OVER(ORDER BY category) as min_revenue
+FROM ecom_sales
+
+
+SELECT *,
+    MAX(revenue) OVER(PARTITION  BY category ORDER BY sale_date) as mx,
+    MIN(revenue) OVER(PARTITION  BY category ORDER BY sale_date) as mn
 FROM ecom_sales
 
 
@@ -144,8 +154,23 @@ SELECT * FROM (SELECT
 FROM ecom_sales) t
 WHERE dn_rnk < 3;
 /* Q11. Divide transactions within each category into 4 equal revenue bands(quartiles) for performance tier reporting */
+SELECT *,
+    NTILE(4) OVER(PARTITION BY category ORDER BY revenue) as bands
+FROM ecom_sales
+
 /* Q12. For each region, assign a sequential number to transactions ordered by sale date, restarting from 1 for each region */
+SELECT *,
+    ROW_NUMBER() OVER(PARTITION BY region ORDER BY sale_date) as num
+FROM ecom_sales
 /* Q13. Find the sales rep with the highest total revenue in each region. Display only the top ranked rep per region*/
+WITH cte1 AS (SELECT *,
+    SUM(revenue) OVER(PARTITION BY region,sales_rep) as sm,
+    DENSE_RANK() OVER(PARTITION BY region ORDER BY (SUM(revenue) OVER(PARTITION BY region,sales_rep)) DESC) as dn
+FROM ecom_sales)
+SELECT distinct region, sales_rep
+FROM cte1
+WHERE dn = 1
+
 /* Q14. Classify each transaction into one of 3 revenue tiers - high, mid, low - 
 evenly distributed within each product category*/
 
@@ -153,7 +178,9 @@ evenly distributed within each product category*/
 /* Q15. For each transaction, retrieve the revenue from the previous transactions made in the same region (ordered by sale date)
 to compare period over period performance.*/
 
-
+SELECT *,
+    LAG(revenue) OVER(PARTITION BY region ORDER BY sale_date) as prev
+FROM ecom_sales
 
 /* Q16. For each transaction, show what the next transactions revenue in the same category will be, order by sale date
 to support forward looking reporting */

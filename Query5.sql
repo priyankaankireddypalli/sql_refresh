@@ -264,14 +264,59 @@ OFFSET 1;
 
 -- (Q26.) Find employees who earn more than the average salary of their department
 
-(SELECT department, ROUND(avg(salary),2) as avg_sal 
-FROM employee 
-GROUP BY department)
+SELECT
+    e.employee_id,
+    e.employee_name,
+    e.department,
+    e.salary
+FROM employee e
+WHERE e.salary > (
+    SELECT AVG(e2.salary)
+    FROM employee e2
+    WHERE e2.department = e.department
+);
 
 
 -- (Q27.) Find employees who report to the highest paid manager
 
+SELECT e.employee_id,
+       e.employee_name,
+       e.manager_id
+FROM employee e
+JOIN employee m
+    ON e.manager_id = m.employee_id
+WHERE m.salary = (
+    SELECT MAX(m2.salary)
+    FROM employee m2
+    WHERE m2.employee_id IN (
+        SELECT DISTINCT manager_id
+        FROM employee
+        WHERE manager_id IS NOT NULL
+    )
+);
 
+
+WITH managers AS (
+    SELECT DISTINCT
+        m.employee_id,
+        m.salary
+    FROM employee m
+    JOIN employee e
+        ON e.manager_id = m.employee_id
+),
+highest_paid_manager AS (
+    SELECT MAX(salary) AS max_salary
+    FROM managers
+)
+SELECT
+    e.employee_id,
+    e.employee_name,
+    e.manager_id
+FROM employee e
+JOIN employee m
+    ON e.manager_id = m.employee_id
+CROSS JOIN highest_paid_manager h
+WHERE m.salary = h.max_salary;
 
 
 

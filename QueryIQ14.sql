@@ -47,21 +47,22 @@ AVG(sales_amount) OVER(PARTITION BY product_id ORDER BY sale_date ROWS BETWEEN 6
 FROM sales
 
 -- Q2. total sales in the last 7 days per product
-SELECT *,
-SUM(sales_amount) OVER(PARTITION BY product_id ORDER BY sale_date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) as total_sales
+SELECT
+    product_id,
+    SUM(sales_amount) AS total_sales
 FROM sales
+WHERE sale_date BETWEEN DATEADD(DAY, -6, GETDATE())
+                    AND GETDATE()
+GROUP BY product_id;
 
-SELECT product_id, SUM(sales_amount) as total_sales
+
+SELECT
+    product_id,
+    SUM(sales_amount) AS total_sales
 FROM sales
-WHERE sale_date BETWEEN DATEADD(DAY,-6,GETDATE()) AND GETDATE()
-GROUP BY product_id
+WHERE sale_date >= DATEADD(DAY, -6, CAST(GETDATE() AS DATE))
+GROUP BY product_id;
 
--- OR
-
-SELECT product_id, SUM(sales_amount) as total_sales
-FROM sales
-WHERE sale_date >= DATEADD(DAY,-6,GETDATE())
-GROUP BY product_id
 
 -- Q3. Calculate ROlling avergae on complete historical data
 SELECT *,
@@ -71,8 +72,16 @@ FROM sales
 
 -- Q4. Rolling average on: ONLY LAST 7 DAYS Data
 
-SELECT *,
-AVG(sales_amount) OVER(PARTITION BY product_id ORDER BY sale_date ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) as avg
+SELECT
+    sale_id,
+    product_id,
+    sale_date,
+    sales_amount,
+    AVG(sales_amount) OVER (
+        PARTITION BY product_id
+        ORDER BY sale_date
+        ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+    ) AS rolling_avg
 FROM sales
-WHERE sale_date BETWEEN DATEADD(DAY,-6,GETDATE()) AND GETDATE()
-GROUP BY product_id
+WHERE sale_date BETWEEN DATEADD(DAY, -6, CAST(GETDATE() AS DATE))
+                    AND CAST(GETDATE() AS DATE);
